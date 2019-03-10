@@ -46,38 +46,38 @@ var zoom = d3.zoom()
     .extent([[0, 0], [width, height]])
     .on("zoom", zoomed);
 
-    var line = d3.line()
-        .x(function (d) { return x(d.Date); })
-        .y(function (d) { return y(d.Air_Temp); });
+var line = d3.line()
+    .x(function (d) { return x(d.Date); })
+    .y(function (d) { return y(d.Air_Temp); });
 
-    var line2 = d3.line()
-        .x(function (d) { return x2(d.Date); })
-        .y(function (d) { return y2(d.Air_Temp); });
+var line2 = d3.line()
+    .x(function (d) { return x2(d.Date); })
+    .y(function (d) { return y2(d.Air_Temp); });
 
-    var clip = svg.append("defs").append("svg:clipPath")
-        .attr("id", "clip")
-        .append("svg:rect")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("x", 0)
-        .attr("y", 0); 
-
-
-    var Line_chart = svg.append("g")
-        .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("clip-path", "url(#clip)");
+var clip = svg.append("defs").append("svg:clipPath")
+    .attr("id", "clip")
+    .append("svg:rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("x", 0)
+    .attr("y", 0); 
 
 
-    var focus = svg.append("g")
-        .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var Line_chart = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("clip-path", "url(#clip)");
+
+
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var context = svg.append("g")
-    .attr("class", "context")
-    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+.attr("class", "context")
+.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-d3.csv("CIMIS_Station_125.csv", type, function (error, data) {
+d3.csv("https://raw.githubusercontent.com/passionsjin/learn_d3_chart/master/CIMIS_Station_125.csv", type, function (error, data) {
   if (error) throw error;
 
   x.domain(d3.extent(data, function(d) { return d.Date; }));
@@ -126,6 +126,59 @@ d3.csv("CIMIS_Station_125.csv", type, function (error, data) {
 
   console.log(data);
 });
+
+d3.csv("https://raw.githubusercontent.com/passionsjin/learn_d3_chart/master/CIMIS_Station_125.csv", type)
+.then(function (data) {
+
+  x.domain(d3.extent(data, function(d) { return d.Date; }));
+  y.domain([0, d3.max(data, function (d) { return d.Air_Temp; })]);
+  x2.domain(x.domain());
+  y2.domain(y.domain());
+
+
+    focus.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    focus.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis);
+
+    Line_chart.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+    context.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line2);
+
+
+  context.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "brush")
+      .call(brush)
+      .call(brush.move, x.range());
+
+  svg.append("rect")
+      .attr("class", "zoom")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(zoom);
+
+
+  console.log(data);
+})
+.catch(function(error){
+  throw error;
+})
 
 function brushed() {
   if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
