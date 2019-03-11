@@ -12,6 +12,15 @@
   fill: none;
   pointer-events: all;
 }
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.grid path {
+  stroke-width: 0;
+}
 
 </style>
 <svg width="960" height="500"></svg>
@@ -45,6 +54,15 @@ var zoom = d3.zoom()
     .translateExtent([[0, 0], [width, height]])
     .extent([[0, 0], [width, height]])
     .on("zoom", zoomed);
+
+function make_x_gridlines() {		
+  return d3.axisBottom(x)
+      .ticks(5)
+}
+function make_y_gridlines() {		
+  return d3.axisLeft(y)
+      .ticks(5)
+}
 
 var line = d3.line()
     .x(function (d) { return x(d.Date); })
@@ -122,6 +140,7 @@ d3.csv("https://raw.githubusercontent.com/passionsjin/learn_d3_chart/master/CIMI
       .attr("height", height)
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .call(zoom);
+  
 
 
   console.log(data);
@@ -172,6 +191,23 @@ d3.csv("https://raw.githubusercontent.com/passionsjin/learn_d3_chart/master/CIMI
       .attr("height", height)
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .call(zoom);
+  
+  // add the X gridlines
+  svg.append("g")			
+      .attr("class", "grid")
+      .attr("transform", "translate(0," + height + ")")
+      .call(make_x_gridlines()
+          .tickSize(-height)
+          .tickFormat("")
+      )
+
+  // add the Y gridlines
+  svg.append("g")			
+      .attr("class", "grid")
+      .call(make_y_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )
 
 
   console.log(data);
